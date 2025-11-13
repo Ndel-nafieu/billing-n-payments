@@ -7,6 +7,9 @@ import {
   AlertCircle,
   CheckCircle,
   FileText,
+  Download,
+  Wallet,
+  HelpCircle,
 } from "lucide-react";
 import { MetricCard } from "@/components/billing/MetricCard";
 import { UserTypeSelector, UserType } from "@/components/billing/UserTypeSelector";
@@ -15,6 +18,12 @@ import { BillingChart } from "@/components/billing/BillingChart";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 // Mock data generators
@@ -133,6 +142,7 @@ const generateMockData = (userType: UserType) => {
 
 const Index = () => {
   const [userType, setUserType] = useState<UserType>("patient");
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
   const data = generateMockData(userType);
 
   const getUserTitle = () => {
@@ -229,13 +239,184 @@ const Index = () => {
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/20 border-primary/20">
           <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="w-full">Make Payment</Button>
-            <Button variant="outline" className="w-full">Download Invoice</Button>
-            <Button variant="outline" className="w-full">Payment Methods</Button>
-            <Button variant="outline" className="w-full">Support</Button>
+            <Button className="w-full" onClick={() => setOpenDialog("payment")}>
+              <DollarSign className="h-4 w-4 mr-2" />
+              Make Payment
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setOpenDialog("invoice")}>
+              <Download className="h-4 w-4 mr-2" />
+              Download Invoice
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setOpenDialog("methods")}>
+              <Wallet className="h-4 w-4 mr-2" />
+              Payment Methods
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setOpenDialog("support")}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Support
+            </Button>
           </div>
         </Card>
       </main>
+
+      {/* Make Payment Dialog */}
+      <Dialog open={openDialog === "payment"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Make a Payment</DialogTitle>
+            <DialogDescription>Complete your payment securely</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount</Label>
+              <Input id="amount" placeholder="$0.00" defaultValue="$340.00" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invoice">Select Invoice</Label>
+              <Select defaultValue="pending">
+                <SelectTrigger id="invoice">
+                  <SelectValue placeholder="Select invoice" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Wellness Program - $100.00</SelectItem>
+                  <SelectItem value="consultation">Consultation - $180.00</SelectItem>
+                  <SelectItem value="lab">Lab Tests - $240.00</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="method">Payment Method</Label>
+              <Select defaultValue="card">
+                <SelectTrigger id="method">
+                  <SelectValue placeholder="Select method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="card">Credit Card •••• 4242</SelectItem>
+                  <SelectItem value="bank">Bank Account •••• 1234</SelectItem>
+                  <SelectItem value="new">+ Add New Method</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => setOpenDialog(null)}>Cancel</Button>
+            <Button className="flex-1" onClick={() => { toast.success("Payment processed successfully!"); setOpenDialog(null); }}>
+              Pay Now
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Download Invoice Dialog */}
+      <Dialog open={openDialog === "invoice"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Download Invoice</DialogTitle>
+            <DialogDescription>Select an invoice to download</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {data.payments.slice(0, 3).map((payment) => (
+              <button
+                key={payment.id}
+                onClick={() => { toast.success(`Downloading invoice for ${payment.description}`); setOpenDialog(null); }}
+                className="w-full p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">{payment.description}</p>
+                    <p className="text-sm text-muted-foreground">{payment.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground">{payment.amount}</p>
+                    <Badge variant={payment.status === "paid" ? "default" : "secondary"} className="text-xs">
+                      {payment.status}
+                    </Badge>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Methods Dialog */}
+      <Dialog open={openDialog === "methods"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Payment Methods</DialogTitle>
+            <DialogDescription>Manage your payment methods</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="p-4 rounded-lg border border-border bg-accent/30">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium text-foreground">Visa •••• 4242</p>
+                    <p className="text-sm text-muted-foreground">Expires 12/2025</p>
+                  </div>
+                </div>
+                <Badge>Primary</Badge>
+              </div>
+            </div>
+            <div className="p-4 rounded-lg border border-border hover:bg-accent/30 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-foreground">Mastercard •••• 5555</p>
+                    <p className="text-sm text-muted-foreground">Expires 08/2026</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Separator />
+            <Button variant="outline" className="w-full" onClick={() => toast.info("Add payment method feature coming soon!")}>
+              + Add New Payment Method
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Support Dialog */}
+      <Dialog open={openDialog === "support"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Billing Support</DialogTitle>
+            <DialogDescription>How can we help you today?</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <button
+              onClick={() => { toast.info("Opening dispute form..."); }}
+              className="w-full p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+            >
+              <p className="font-medium text-foreground">Dispute a Charge</p>
+              <p className="text-sm text-muted-foreground">Report an incorrect or fraudulent charge</p>
+            </button>
+            <button
+              onClick={() => { toast.info("Connecting to support team..."); }}
+              className="w-full p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+            >
+              <p className="font-medium text-foreground">Contact Support</p>
+              <p className="text-sm text-muted-foreground">Chat with our billing specialists</p>
+            </button>
+            <button
+              onClick={() => { toast.info("Opening FAQ..."); }}
+              className="w-full p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+            >
+              <p className="font-medium text-foreground">Billing FAQ</p>
+              <p className="text-sm text-muted-foreground">Common questions and answers</p>
+            </button>
+            <button
+              onClick={() => { toast.info("Requesting payment plan..."); }}
+              className="w-full p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+            >
+              <p className="font-medium text-foreground">Payment Plan Request</p>
+              <p className="text-sm text-muted-foreground">Set up a custom payment schedule</p>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
