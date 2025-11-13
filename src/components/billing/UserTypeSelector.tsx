@@ -18,7 +18,7 @@ const userTypes = [
 
 export const UserTypeSelector = ({ selectedType, onTypeChange }: UserTypeSelectorProps) => {
   return (
-    <div className="flex flex-wrap gap-2 p-4 bg-card rounded-xl border border-border">
+    <div className="flex flex-wrap gap-2 p-4 bg-card rounded-xl border border-border shadow-sm">
       {userTypes.map(({ type, label, icon: Icon }) => (
         <Button
           key={type}
@@ -26,8 +26,8 @@ export const UserTypeSelector = ({ selectedType, onTypeChange }: UserTypeSelecto
           size="sm"
           onClick={() => onTypeChange(type)}
           className={cn(
-            "transition-all duration-200",
-            selectedType === type && "shadow-md"
+            "transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
+            selectedType === type && "shadow-lg ring-2 ring-primary/20"
           )}
         >
           <Icon className="h-4 w-4 mr-2" />
