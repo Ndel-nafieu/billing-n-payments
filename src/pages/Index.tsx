@@ -10,6 +10,7 @@ import {
   Download,
   Wallet,
   HelpCircle,
+  Smartphone,
 } from "lucide-react";
 import { MetricCard } from "@/components/billing/MetricCard";
 import { UserTypeSelector, UserType } from "@/components/billing/UserTypeSelector";
@@ -366,6 +367,28 @@ const Index = () => {
                   <div>
                     <p className="font-medium text-foreground">Mastercard •••• 5555</p>
                     <p className="text-sm text-muted-foreground">Expires 08/2026</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 rounded-lg border border-border hover:bg-accent/30 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Smartphone className="h-5 w-5 text-warning" />
+                  <div>
+                    <p className="font-medium text-foreground">MTN Mobile Money</p>
+                    <p className="text-sm text-muted-foreground">+233 24 ••• 7890</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 rounded-lg border border-border hover:bg-accent/30 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Smartphone className="h-5 w-5 text-destructive" />
+                  <div>
+                    <p className="font-medium text-foreground">Telecel Mobile Money</p>
+                    <p className="text-sm text-muted-foreground">+233 20 ••• 4567</p>
                   </div>
                 </div>
               </div>
